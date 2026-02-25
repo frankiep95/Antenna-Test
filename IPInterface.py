@@ -1,29 +1,66 @@
-import socket
-import time
+import paramiko
 
-TCP_PORT = 22
-BUFFER_SIZE = 1024
+# client = paramiko.SSHClient()
+
+# client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+# try:
+#     client.connect(
+#         hostname="192.168.50.75",
+#         username="root",
+#         password="rWaveTech",
+#         look_for_keys=False,
+#         allow_agent=False
+
+#     )
+
+#      # Execute a command
+#     stdin, stdout, stderr = client.exec_command("ls -l")
+#     print(stdout.read().decode())
+
+# except paramiko.AuthenticationException:
+#     print("Authentication failed. Please verify your credentials.")
+# except Exception as e:
+#     print(f"An error occurred: {e}")
+# finally:
+#     # Close the connection
+#     client.close()   
 
 
-class IPInterface:
-    def __init__(self,ip,port=TCP_PORT):
-        self.__ip = ip
-        self.__port = port
+
+class IPInterface():
+    def __init__(self, ip_address, username, password):
+        self.__ip_address = ip_address
+        self.__username = username
+        self.__password = password
+        self.client = paramiko.SSHClient()
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     def connect(self):
-        self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__socket.settimeout(5)
         try:
-            self.__socket.connect((self.__ip, self.__port))
-        except socket.error:
-            print("Failed to connect to IP address:", self.__ip, "on port:", self.__port)
+            self.client.connect(
+                hostname=self.__ip_address,
+                username=self.__username,
+                password=password,
+                look_for_keys=False,
+                allow_agent=False
+            )
+            return True
+        except Exception as e:
+            print(f"Failed to connect to {self.__ip_address}: {e}")
+            return False
+        except paramiko.AuthenticationException:
+            print(f"Authentication failed for {self.__ip_address}. Please verify your credentials.")
+            return False
+        except Exception as e:
+            print(f"An error occurred while connecting to {self.__ip_address}: {e}")
+            return False    
 
-    def send(self,message):
+    def disconnect(self):
+        self.client.close()
+
+    def command(self, cmd):
         try:
-            self.__socket.sendall(message.encode())
-        except socket.error:
-            print("Failed to send message to IP address:", self.__ip, "on port:", self.__port)  
-    
-
-    def close(self):
-        self.__socket.close()
+            self.client.exec_command(cmd)
+        except Exception as e:
+            print(f"Failed to execute command '{cmd}' on {self.__ip_address}: {e}")
