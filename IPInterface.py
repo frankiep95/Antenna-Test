@@ -1,47 +1,25 @@
 import paramiko
 
-# client = paramiko.SSHClient()
-
-# client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-# try:
-#     client.connect(
-#         hostname="192.168.50.75",
-#         username="root",
-#         password="rWaveTech",
-#         look_for_keys=False,
-#         allow_agent=False
-
-#     )
-
-#      # Execute a command
-#     stdin, stdout, stderr = client.exec_command("ls -l")
-#     print(stdout.read().decode())
-
-# except paramiko.AuthenticationException:
-#     print("Authentication failed. Please verify your credentials.")
-# except Exception as e:
-#     print(f"An error occurred: {e}")
-# finally:
-#     # Close the connection
-#     client.close()   
-
 
 
 class IPInterface():
-    def __init__(self, ip_address, username, password):
+    def __init__(self, ip_address, username="root", password="rWaveTech"):
         self.__ip_address = ip_address
         self.__username = username
         self.__password = password
         self.client = paramiko.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+    
+    def setIP(self, ip_address):
+        self.__ip_address = ip_address
+
     def connect(self):
         try:
             self.client.connect(
                 hostname=self.__ip_address,
                 username=self.__username,
-                password=password,
+                password=self.__password,
                 look_for_keys=False,
                 allow_agent=False
             )
@@ -58,9 +36,11 @@ class IPInterface():
 
     def disconnect(self):
         self.client.close()
+        self.connected = False  
 
     def command(self, cmd):
         try:
-            self.client.exec_command(cmd)
+           stdin, stdout, stderr = self.client.exec_command(cmd)
+           return stdout.read().decode()
         except Exception as e:
             print(f"Failed to execute command '{cmd}' on {self.__ip_address}: {e}")
