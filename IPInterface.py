@@ -1,7 +1,6 @@
 import paramiko
 
 
-
 class IPInterface():
     def __init__(self, ip_address, username="root", password="rWaveTech"):
         self.__ip_address = ip_address
@@ -44,3 +43,17 @@ class IPInterface():
            return stdout.read().decode()
         except Exception as e:
             print(f"Failed to execute command '{cmd}' on {self.__ip_address}: {e}")
+
+    
+    def atCommand(device,atCommand):
+        try:
+            device.command("rm -f output.log")
+            device.command("cat < /dev/ttyUSB2 > output.log &")
+            device.command(f"echo -e \"{atCommand}\\r\\n\" > /dev/ttyUSB2")
+            print(f"SENDING: echo -e \"{atCommand}\\r\\n\" > /dev/ttyUSB2")
+            device.command(f"pkill cat")
+            return device.command("cat output.log")
+        
+        except Exception as e:
+            print(f"Failed to execute AT command '{atCommand}': {e}")
+

@@ -3,9 +3,8 @@ from tkinter import Menu, ttk
 from tkinter import filedialog
 import styling
 import IPInterface as ipi
-import commands as k
 import gpsTest as gps
-import instrument as inst   
+import TestInstrument as inst   
 
 mainWindow = tk.Tk()
 mainWindow.title("Antenna Test Harness")
@@ -24,29 +23,58 @@ menu_bar.add_cascade(label="Instruments", menu=add_instrument)
 
 conectedInstruments = []
 
+def addInstrument(serialNumber, ip_address):
+    newInstrument = inst(serialNumber)
+    newInstrument.connect(ip_address)
+    conectedInstruments.append(newInstrument)
 
 #connect instrument
-tk.Label(mainWindow, text="Enter IP Address:", font=("Arial", 12), bg="gray").pack(pady=10)
+tk.Label(mainWindow,
+            text="Enter Instrument Serial Number:",
+            font=("Arial", 12),
+            bg="gray").pack(pady=10)
+serialNumberEntry = tk.Entry(mainWindow, font=("Arial", 12), width=30)
+serialNumberEntry.pack(pady=2)
+
+tk.Label(mainWindow, 
+         text="Enter IP Address:", 
+         font=("Arial", 12), 
+         bg="gray").pack(pady=10)
 IP = tk.Entry(mainWindow, font=("Arial", 12), width=30)
 IP.pack(pady=2)  
 
-connectButton = tk.Button(mainWindow,text = "Connect", font=("Arial",12), command=lambda: inst.connect(IP.get()))
+connectButton = tk.Button(mainWindow,
+                          text = "Connect", 
+                          font=("Arial",12), 
+                          command= addInstrument(serialNumberEntry.get(), IP.get()))
 connectButton.pack(pady=20)
 
 # Select a save location for test data
-folderPickerButton = tk.Button(mainWindow, text="Select Folder to Save Test Data", font=("Arial", 12), command=lambda: inst.select_folder())
+folderPickerButton = tk.Button(mainWindow, 
+                               text="Select Folder to Save Test Data", 
+                               font=("Arial", 12), 
+                               command=lambda: inst.select_folder())
 folderPickerButton.pack(pady=20) 
-pathLabel = tk.Label(mainWindow, text="No folder selected", font=("Arial", 10), bg="gray")
+pathLabel = tk.Label(mainWindow, 
+                     text="No folder selected", 
+                     font=("Arial", 10), 
+                     bg="gray")
 pathLabel.pack(pady=10)
 
 
 #test GPS button
-GPSSetupButton = tk.Button(mainWindow, text="Setup GPS Antenna", font=("Arial", 12), command=lambda: gps.setupGPS(unit))
+GPSSetupButton = tk.Button(mainWindow, 
+                           text="Setup GPS Antenna", 
+                           font=("Arial", 12), 
+                           command=lambda: gps.setupGPS(unit))
 GPSSetupButton.pack(pady=20)    
 
 
 #test wifi connection
-testWiFiButton = tk.Button(mainWindow, text="Test WiFi Connection", font=("Arial", 12),command=lambda: k.getWiFiConnections(unit))
+testWiFiButton = tk.Button(mainWindow, 
+                           text="Test WiFi Connection", 
+                           font=("Arial", 12), 
+                           command=lambda: inst.getWiFiConnections(unit))
 testWiFiButton.pack(pady=20)   
 
 
